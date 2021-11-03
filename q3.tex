@@ -1,0 +1,109 @@
+
+%%% Question 3 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\question This question is about user-defined types and type classes.
+\begin{parts}
+	\part Consider the following data type:
+	\begin{verbatim}
+	data Layout a = Element a  
+	              | Vertical (Layout a) (Layout a)
+	              | Horizontal (Layout a) (Layout a)
+	\end{verbatim}
+	The intuition here is that a layout consists of elements which are composed vertically or horizontally.
+	\begin{subparts}
+		\subpart[1] What is the type of the \texttt{\small Element} constructor? \droppoints 
+		
+		\begin{solution}
+			\emph{Comprehension.} \haskellIn{a -> Layout a}
+		\end{solution}
+	
+		\subpart[2] What is the type of the \texttt{\small Vertical} constructor? \droppoints
+		
+		\begin{solution}
+			\emph{Comprehension.} \haskellIn{Layout a -> Layout a -> Layout a}
+		\end{solution}
+	
+		\subpart[1] What is the kind of the \texttt{\small Layout} type? \droppoints 
+		
+		\begin{solution}
+			\emph{Comprehension.} \haskellIn{* -> *}
+		\end{solution}
+	
+		\subpart[4] The \texttt{\small Layout} type is a functor. Define a suitable instance of the \texttt{\small Functor} type class for it. \droppoints 
+		
+		\begin{solution}
+			\emph{Application.} 
+			\begin{verbatim}
+			instance Functor Layout where
+			  fmap f (Element a) = Element (f a)
+			  fmap f (Vertical x y) = Vertical (fmap f x) (fmap f y)
+			  fmap f (Horizontal x y) = 
+			    Horizontal (fmap f x) (fmap f y) 
+			\end{verbatim}
+		\end{solution}
+	\end{subparts}
+
+	\part Consider the following definition: 
+	\begin{verbatim}
+	example :: Layout (Sized Char)
+	example = Vertical 
+	  (Element (Sized (15,42) 'a'))
+	  (Horizontal 
+	    (Element (Sized (4,16) 'b')) 
+	    (Element (Sized (23,8) 'c')))
+	\end{verbatim}
+	
+	\begin{subparts}
+		\subpart[2] Define a suitable data type \texttt{\small Sized} so that the above definition is valid. \droppoints
+		
+		\begin{solution}
+			\emph{Application.}
+			\begin{verbatim}
+			data Sized a = Sized (Int,Int) a
+			\end{verbatim}
+		\end{solution}
+	
+		\subpart[4] Define a function 
+		\begin{center}
+			\texttt{\small width~::~Layout (Sized a) -> Int}
+		\end{center}
+		which calculates the width of a layout. For example, \texttt{\small width example} should evaluate to \texttt{\small 27}. The width of horizontally composed layouts is the sum of the widths of the sub-layouts and the width of vertically composed layout is the maximum width of the sub-layouts.  \droppoints
+		
+		\begin{solution}
+			\emph{Application.} 
+			\begin{verbatim}
+				width :: Layout (Sized a) -> Int
+				width (Element (Sized (x,y) a)) = x 
+				width (Vertical a b) = max (width a) (width b)
+				width (Horizontal a b) = width a + width b
+			\end{verbatim}
+		\end{solution}
+	
+		\subpart[4] Define a corresponding function
+		\begin{center}
+			\texttt{\small height~::~Layout (Sized a) -> Int}
+		\end{center}
+		which calculates the height of a layout. For example, \texttt{\small width example} should evaluate to \texttt{\small 58}. \droppoints
+		
+		\begin{solution}
+			\emph{Application.} 
+			\begin{verbatim}
+				height :: Layout (Sized a) -> Int
+				height (Element (Sized (x,y) a)) = y 
+				height (Horizontal a b) = max (height a) (height b)
+				height (Vertical a b) = height a + height b
+			\end{verbatim}
+		\end{solution} 
+	
+		\subpart[7] Suppose that we wish to render a given layout to a surface that uses a coordinate system where the origin is the top left corner and that we need to know the top left coordinate of each element in a layout for this purpose. Define a function 
+		\begin{center}
+			\texttt{\small pos~::~Layout (Sized a) -> Layout (Sized (Int,Int))}
+		\end{center}
+		which, for every element in the layout, calculates its absolute position and replaces its value with the calculated position. For example, \texttt{\small pos example} should evaluate to the following: \droppoints
+		\begin{verbatim}
+		Vertical (Element (Sized (15,42) (0,0)))
+		         (Horizontal 
+		           (Element (Sized (4,16) (0,42))) 
+		           (Element (Sized (23,8) (4,42))))
+		\end{verbatim}
+	\end{subparts}
+\end{parts}

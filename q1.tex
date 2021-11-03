@@ -1,0 +1,196 @@
+%%% Question 1 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\question This question is about functional programming as a programming paradigm.
+
+\makeatletter
+\renewcommand{\verbatim@font}{\ttfamily \small}
+\makeatother
+
+\begin{parts}
+	
+	\part For each of the following Haskell expressions, reduce it to its normal form.
+	
+	\begin{subparts}
+		
+		\subpart[1] \haskellIn{last "jedi"}  \droppoints
+		
+		\begin{solution}
+			\emph{Comprehension.} \haskellIn{'i'}
+		\end{solution}
+		
+		\subpart[1] \haskellIn{reverse (filter (>'g') "uaogyfsetdichboa")} \droppoints 
+		
+		\begin{solution}
+		\emph{Comprehension.} \haskellIn{"ohitsyou"} 
+		\end{solution}
+	
+		\subpart[1] \haskellIn{fmap (fmap (\f a -> (*2) . f a)) (Just [(+),(-)])}  \droppoints
+		
+		\begin{solution}
+		\emph{Comprehension.}\\ \haskellIn{Just [\a -> (*2) . (+) a, \a -> (*2) . (-) a]}
+		\end{solution}
+	
+		\subpart[1] {\small \texttt{foldr}\\
+		\texttt{\phantom{~~}(\textbackslash x r -> foldr take r x ++ r)}\\
+		\texttt{\phantom{~~}"NaBatman" [Just 4, Just 2]}}  \droppoints
+		
+		\begin{solution}
+			\emph{Comprehension.}\\ \haskellIn{"NaNaNaNaBatman"}
+		\end{solution}
+	
+		\subpart[1] 
+		\begin{verbatim}
+		let a = Just 4
+		    b = Just 5 
+		in (pure (+) <*> a <*> b) ==
+		\end{verbatim}
+		\texttt{\small \phantom{~~~}(a >{}>= \textbackslash x -> b >{}>= \textbackslash y -> pure (x+y))}
+		\droppoints
+		
+		\begin{solution}
+		\emph{Comprehension.} \haskellIn{True}
+		\end{solution}
+	\end{subparts}
+	
+	\part For each of the following expressions, choose the permissible type from the options that are listed if there is one. There is \emph{at most} one correct option for each expression. If no option is correct, please write ``not well typed''.
+	
+	\begin{subparts}
+		
+    	\subpart[1] \haskellIn{drop 4} \droppoints
+    	
+	    \begin{enumerate}
+	    	\item \haskellIn{Int -> [a] -> [a]}
+	    	\item \haskellIn{[a] -> [a]}
+	    	\item \haskellIn{[a]}
+	    	\item \haskellIn{Num a => [a]}
+	    	\item \haskellIn{Num a => (Int -> [a] -> [a]) -> a}
+	    \end{enumerate}
+    
+		\begin{solution}
+			\emph{Comprehension.} 2
+		\end{solution}
+	
+    	\subpart[1] \haskellIn{filter True [15==16,23==42]} \droppoints
+    	
+	    \begin{enumerate}
+	    	\item \haskellIn{Bool -> [Bool] -> [Bool]}
+	    	\item \haskellIn{Bool -> [a] -> [a]}
+	    	\item \haskellIn{Bool -> [Int -> Int -> Bool] -> [Bool]}
+	    	\item \haskellIn{[Bool]}
+	    	\item \haskellIn{[Int -> Int -> Bool]}
+	    \end{enumerate}
+    
+	    \begin{solution}
+	   		\emph{Comprehension.} Not well typed.
+	    \end{solution}
+    
+    	%\ifprintanswers \pagebreak \else \fi
+    
+    	%\ifprintanswers \else \pagebreak \fi
+    	
+    	\subpart[1] \haskellIn{let i=8+i in i} \droppoints
+    	
+	    \begin{enumerate}
+	    	\item \haskellIn{a}
+	    	\item \haskellIn{Num a => a}
+	    	\item \haskellIn{a -> a}
+	    	\item \haskellIn{Num a => a -> a}
+	    	\item \haskellIn{Num a => (a,a)}
+	    \end{enumerate}
+    
+	    \begin{solution}
+	    	\emph{Comprehension.} 2
+	    \end{solution}
+    
+		\subpart[1] \haskellIn{fmap . fmap} \droppoints
+		
+		\begin{enumerate}
+			\item \haskellIn{Functor f => (f a -> f b) -> f a -> f b}
+			\item \haskellIn{(Functor f, Functor g) => (a -> b) -> f (g a) -> f (g b)}
+			\item \haskellIn{(Functor f, Functor g) => (f a -> g b) -> f a -> f b}
+			\item \haskellIn{Functor f => f a -> f b}
+			\item \haskellIn{(Functor f, Functor g) => f a -> g b}
+		\end{enumerate}
+	
+		\begin{solution}
+			\emph{Comprehension.} 2
+		\end{solution}
+	
+		\ifprintanswers \else \pagebreak \fi
+		
+    	\subpart[1] \haskellIn{\f -> (\x -> f (x x)) (\x -> f (x x))} \droppoints 
+    	
+	    \begin{enumerate}
+	    	\item \haskellIn{a -> b}
+	    	\item \haskellIn{(a -> b) -> b}
+	    	\item \haskellIn{(a -> b) -> (b -> b) -> b}
+	    	\item \haskellIn{(a -> (b -> b)) -> b}
+	    	\item \haskellIn{(a -> (b -> b)) -> (b -> b) -> b}
+	    \end{enumerate}
+    
+	    \begin{solution}
+	    	\emph{Comprehension.} Not well typed.
+	    \end{solution}
+	\end{subparts}
+
+	%\ifprintanswers \else \pagebreak \fi
+
+	\part[5] Consider the following definition of \haskellIn{map}:
+	\begin{small}
+	\begin{verbatim}
+	map :: (a -> b) -> [a] -> [b]
+	map f []     = []
+	map f (x:xs) = f x : map f xs
+	\end{verbatim}
+	\end{small}
+	
+	Define a function \haskellIn{map'} which is equivalent to \haskellIn{map}, but is defined using \haskellIn{foldl} instead of explicit recursion. \droppoints 
+	
+	\begin{solution}
+	\emph{Application.} One possible answer is:
+	\begin{verbatim}
+	map' f = foldl (\r x -> r ++ [f x]) []
+	\end{verbatim}
+	\end{solution}
+\part  \label{part:sum}
+\begin{subparts}
+\subpart[5] \label{part:strict} Trace how \haskellIn{map' (+1) [4,8,15]} would be evaluated in a language with \emph{call-by-value} semantics. \droppoints
+\begin{solution}
+\emph{Comprehension.}
+\begin{small}
+\begin{verbatim}
+   map' (+1) [4,8,15]
+=> foldl (\r x -> r ++ [(+1) x]) [] [4,8,15]
+=> foldl (\r x -> r ++ [(+1) x]) ([] ++ [(+1) 4]) [8,15]
+=> foldl (\r x -> r ++ [(+1) x]) ([] ++ [5]) [8,15]
+=> foldl (\r x -> r ++ [(+1) x]) [5] [8,15]
+=> foldl (\r x -> r ++ [(+1) x]) ([5] ++ [(+1) 8]) [15]
+=> foldl (\r x -> r ++ [(+1) x]) ([5] ++ [9]) [15]
+=> foldl (\r x -> r ++ [(+1) x]) [5,9] [15]
+=> foldl (\r x -> r ++ [(+1) x]) ([5,9] ++ [(+1) 15]) []
+=> foldl (\r x -> r ++ [(+1) x]) ([5,9] ++ [16]) []
+=> foldl (\r x -> r ++ [(+1) x]) [5,9,16] []
+=> [5,9,16]
+\end{verbatim}
+\end{small}
+\end{solution}
+\subpart[5] \label{part:lazy} Trace how \haskellIn{map' (+1) [4,8,15]} would be evaluated in a language with \emph{call-by-name} semantics. You should assume that the value of this expression is required by some other part of the program. \droppoints
+\begin{solution} \emph{Comprehension.}
+\begin{small}
+\begin{verbatim}
+   map' (+1) [4,8,15]
+=> foldl (\r x -> r ++ [(+1) x]) [] [4,8,15]
+=> foldl (\r x -> r ++ [(+1) x]) ([] ++ [(+1) 4]) [8,15]
+=> foldl (\r x -> r ++ [(+1) x]) (([] ++ [(+1) 4]) 
+   ++ [(+1) 8]) [15]
+=> foldl (\r x -> r ++ [(+1) x]) ((([] ++ [(+1) 4]) 
+   ++ [(+1) 8]) ++ [(+1) 15]) []
+=> (([] ++ [(+1) 4]) ++ [(+1) 8]) ++ [(+1) 15]
+=> ([(+1) 4] ++ [(+1) 8]) ++ [(+1) 15]
+=> [(+1) 4, (+1) 8] ++ [(+1) 15]
+=> [(+1) 4, (+1) 8, (+1) 15]
+=> [5,9,16]
+\end{verbatim}
+\end{small}
+\end{solution}
+\end{subparts}
+\end{parts}

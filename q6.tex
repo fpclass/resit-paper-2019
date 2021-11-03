@@ -1,0 +1,53 @@
+%%% Question 6 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\question This question is about type-level programming. You may assume that all of GHC's language extensions are available to you for this question.
+\begin{parts}
+	\part[4] You are given the following definition of a data type in Haskell:
+	\begin{verbatim}
+	data List a = Empty | Cons a (List a)
+	\end{verbatim}
+	With reference to this definition, explain what is meant by \emph{type promotion}. In your answer, you should state relevant types and kinds that result from the definition of \texttt{\small List}. \droppoints 
+	\begin{solution}
+		\emph{Comprehension. 1 mark for an explanation that this definition normally results in two data constructors. 1 mark for correctly explaining/stating the types of those constructors. 1 mark for an explanation that with type promotion this definition also results in one new kind and two new types. 1 mark for correctly explaining/stating the kinds of those types. } 
+	\end{solution}
+	\part[2] Define a closed type family \texttt{\small Head} of kind \texttt{\small List a -> a} which computes the head of a type-level list. \droppoints 
+	\begin{solution}
+		\emph{Application.} \begin{verbatim}
+		type family Head (xs :: List a) where
+		  Head (Cons x xs) = x
+		\end{verbatim}
+	\end{solution}
+	\part[4] Define a closed type family \texttt{\small Append} of kind \texttt{\small List a -> List a -> List a} which appends two type-level lists. \droppoints
+	\begin{solution}
+		\emph{Application.} \begin{verbatim}
+		type family Append (xs :: List a) (ys :: List a) where
+		  Append Empty ys = ys
+		  Append (Cons x xs) ys = Cons x (Append xs ys)
+		\end{verbatim}
+	\end{solution}
+	\part[4] Consider the following definition of a polymorphic proxy type:
+	\begin{verbatim}
+	data Proxy (k :: a) = Proxy
+	\end{verbatim}
+	With reference to this type, explain what proxy types are used for\linebreak in Haskell. \droppoints 
+	\begin{solution}
+		\emph{Bookwork.} In Haskell, only types of kind \texttt{*} have values. Therefore, functions' domains and codomains must be types of kind \texttt{*}. Proxies allow us to work around this restriction to pass type-level values to functions. The \texttt{Proxy} type above has kind \texttt{a -> *} and, if applied to a type argument, therefore has kind \texttt{*} which makes values of this type suitable as arguments to functions. 
+	\end{solution}
+	\part[6] With the help of the \texttt{\small Proxy} type and the \texttt{\small List} kind, define a singleton type for type-level lists. \droppoints 
+	\begin{solution}
+		\emph{Application. 1 mark for head, 1 mark for first equation, 4 marks for second equation.} \begin{verbatim}
+		data ListSingleton (xs :: List a) where
+		  SEmpty :: ListSingleton Empty
+		  SCons  :: Proxy x -> ListSingleton xs -> 
+		            ListSingleton (Cons x xs)
+		\end{verbatim}
+	\end{solution}
+	\part[5] Given a type-level list, we can construct a curried function type where the types contained in the type-level list represent the parameters. Define a closed type family \texttt{\small Fun} of kind \texttt{\small List * -> * -> *} so that, for example,\linebreak \texttt{\small Fun (Cons Int (Cons String Empty)) Bool} evaluates to \texttt{\small Int -> String -> Bool}. \droppoints 
+	\begin{solution}
+		\emph{Application.} 
+		\begin{verbatim}
+		type family Fun (f :: List *) r where
+		  Fun Empty      r = r
+		  Fun (Cons a f) r = a -> Fun f r
+		\end{verbatim}
+	\end{solution}
+\end{parts}

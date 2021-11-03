@@ -1,0 +1,103 @@
+%%% Question 2 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\question This question is about recursive and higher-order functions.
+
+
+In the \emph{countdown problem} you are given a list of numbers, the standard arithmetic operators (\texttt{\small +}, \texttt{\small -}, \texttt{\small *}, \texttt{\small /}), and a target number. The goal is to construct an arithmetic expression using the given list of numbers and the standard arithmetic operators which evaluates to the target number. Each number may only be used once and values, including intermediate results, can never be negative. For example, if the list of numbers is \texttt{\small [1, 3, 7, 10, 25, 50]} and the target is \texttt{\small 765}, then a valid solution to the countdown problem is \texttt{\small (1 + 50) * (25 - 10)}. We represent operators and expressions as follows:
+\begin{verbatim}
+data Op   = Add | Sub | Mul | Div
+data Expr = Val Int | App Op Expr Expr
+\end{verbatim}
+\begin{parts}
+	\part[4] Define a function 
+	\begin{center}
+		\texttt{\small split~::~[a] -> [([a],[a])]}
+	\end{center}
+	which returns a list of pairs describing all possible ways to split a list into two non-empty ones. For example, \texttt{\small split [1,2,3,4]} should evaluate to \texttt{\small [([1],[2,3,4]), ([1,2],[3,4]), ([1,2,3],[4])]}. \droppoints 
+	\begin{solution}
+		\emph{Application.}
+		\begin{verbatim}
+		split [] = []
+		split [_] = []
+		split (x:xs) = ([x],xs) : [(x:ls,rs) | (ls,rs) <- split xs]
+		\end{verbatim}
+	\end{solution}
+	\part[5] With the help of \texttt{\small split}, define a function 
+	\begin{center}
+		\texttt{\small exprs~::~[Int] -> [Expr]}
+	\end{center}
+	which generates all possible expressions for a list of numbers. All of the numbers from the list should be used and in the order provided. For example, \texttt{\small exprs [1,2]} should evaluate to \texttt{\small [App Add (Val 1) (Val 2), App Sub (Val 1) (Val 2), App Mul (Val 1) (Val 2), App Div (Val 1) \linebreak (Val 2)]}. \emph{Hint:} for longer lists, expressions will have to be nested further. \droppoints
+	\begin{solution}
+		\emph{Application}
+		\begin{verbatim}
+		exprs [] = []
+		exprs [n] = [Val n]
+		exprs ns = [e | (ls,rs) <- split ns,
+		                      l <- exprs ls,
+		                      r <- exprs rs,
+		                      e <- [App o l r | 
+		                              o <- [Add, Sub, Mul, Div]]]
+		\end{verbatim}
+	\end{solution}
+	\part[5] Define a function 
+	\begin{center}
+		\texttt{\small eval~::~Expr -> [Int]}
+	\end{center}
+	which evaluates an expression. For example, \texttt{\small eval (App Div (Val 4) (Val 3)} should evaluate to \texttt{\small [1]}. This function should evaluate to \texttt{\small []} if the expression cannot be evaluated (e.g. due to division by zero). \droppoints 
+	\begin{solution}
+		\emph{Application.}
+		\begin{verbatim}
+		eval (Val n) = [n]
+		eval (App o l r) = do 
+		  x <- eval l
+		  y <- eval r 
+		  [apply o x y]
+		
+		apply Add x y = x + y
+		apply Sub x y = x - y
+		apply Mul x y = x * y
+		apply Div x y = x `div` y
+		\end{verbatim}
+	\end{solution}
+	\part[4] Define a function 
+	\begin{center}
+		\texttt{\small permutations~::~Eq a => [a] -> [[a]]}
+	\end{center}
+	which calculates all permutations of a list. For example, \texttt{\small permutations \linebreak{} [1,2,3]} should evaluate to \texttt{\small [[1,2,3],[2,1,3],[2,3,1],[1,3,2],\linebreak{}[3,1,2],[3,2,1]]}. \droppoints 
+	\begin{solution}
+		\emph{Bookwork.}
+		\begin{verbatim}
+		permutations :: Eq a => [a] -> [[a]]
+		permutations [] = [[]]
+		permutations xs = [x : ys | x <- xs, 
+		                            ys <- permutations (delete x xs)]
+		\end{verbatim}
+	\end{solution}
+	
+	\part[3] With the help of \texttt{\small permutations}, define a function 
+	\begin{center}
+		\texttt{\small choices~::~[a] -> [[a]]}
+	\end{center}
+	which generates all permutations of subsequences of a list. For example, \texttt{\small choices [1,2,3]} should evaluate to \texttt{\small [[], [3], [2], [2, 3], [3, 2], \linebreak{} [1], [1, 3], [3, 1], [1, 2], [2, 1], [1, 2, 3], [2, 1, 3],}\\ \texttt{[2, 3, 1],[1, 3, 2], [3, 1, 2], [3, 2, 1]]}. \droppoints 
+	\begin{solution}
+		\emph{Application.}
+		\begin{verbatim}
+		choices = concat . map permutations . subsequences
+		\end{verbatim}
+	\end{solution}
+
+	\pagebreak
+
+	\part[4] With the help of \texttt{\small choices}, \texttt{\small exprs}, and \texttt{\small eval} define a function 
+	\begin{center}
+		\texttt{\small countdown~::~[Int] -> Int -> [Expr]}
+	\end{center}
+	which solves the countdown problem for a given list of numbers and a target number by returning a list of expressions which, when evaluated, result in the target number.  \droppoints 
+	\begin{solution}
+		\emph{Application.}
+		\begin{verbatim}
+		countdown ns n = [e | ns' <- choices ns,
+	                            e <- exprs ns',
+		                        eval e == [n]]
+		\end{verbatim}
+	\end{solution}
+\end{parts}

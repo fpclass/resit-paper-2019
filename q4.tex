@@ -1,0 +1,155 @@
+\allowdisplaybreaks
+%%% Question 4 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\question This question is about equational reasoning.
+\begin{parts}
+	
+	\part[4] Suppose that the \texttt{\small length} function is defined as:
+	\begin{verbatim}
+	length :: [a] -> Int 
+	length []     = 0 
+	length (x:xs) = 1 + length xs
+	\end{verbatim}
+	Consider the following well known property which states that the \texttt{\small length} of two combined lists is the same as the sum of the individual lists' lengths:
+	\begin{center}
+		\texttt{\small length (xs ++ ys) == length xs + length ys}
+	\end{center}
+	Prove this property. You may assume standard properties of arithmetic. \droppoints 
+	
+	\begin{solution}
+		\emph{Application.}
+		\begin{verbatim}
+		length ([] ++ ys) 
+		= length ys 
+		= 0 + length ys
+		= length [] + length ys
+		
+		length ((x:xs) ++ ys)
+		= length (x : (xs ++ ys))
+		= 1 + length (xs++ys)
+		= 1 + (length xs + length ys)
+		= length (x:xs) + length ys
+		\end{verbatim}
+	\end{solution}
+	
+	\part[10] For a list of length $n$, there are $2^n$ many subsequences:
+	\begin{center}
+		\texttt{\small length (subsequences xs) = 2\textasciicircum (length xs)}
+	\end{center}
+	With the help of the previous property, standard properties of arithmetic, and any additional lemma(s) you need, which must also be proved, prove this property.  \droppoints
+	
+	\begin{solution}
+		\emph{Application.}
+		We first need to prove a lemma (1+3 marks):
+		\begin{center}
+			\texttt{\small length xs == length (map f xs)}
+		\end{center}
+		The proof is by induction on \texttt{\small xs}:
+		\begin{verbatim}
+		length [] 
+		= { unapplying map }
+		length (map f [])
+		
+		length (x:xs)
+		= { applying length }
+		1 + length xs 
+		= { induction hypothesis }
+		1 + length (map f xs)
+		= { unapplying length }
+		length (f x : map f xs)
+		= { unapplying map }
+		length (map f (x:xs))
+		\end{verbatim}
+		2+4 marks
+		\begin{verbatim}
+		Proof by induction on xs.
+		
+		Base case: length (subsequences []) = 2^(length [])
+		length (subsequences [])
+		= { applying subsequences }
+		length [[]]
+		= { applying length }
+		1 
+		= { arithmetic }
+		2^1
+		= { unapplying length }
+		2^(length [])
+		
+		Inductive step: 
+		  length (subsequences (x:xs)) = 2^(length (x:xs))
+		  
+		length (subsequences (x:xs))
+		= { applying subsequences }
+		length (subsequences xs ++ map (x:) (subsequences xs))
+		= { length property }
+		length (subsequences xs) + 
+		  length (map (x:) (subsequences xs))
+		= { lemma }
+		length (subsequences xs) + length (subsequences xs)
+		= { arithmetic }
+		2 * length (subsequences xs)
+		= { induction hypothesis }
+		2 * 2^(length xs)
+		= { arithmetic }
+		2^(1+length xs)
+		= { unapplying length }
+		2^(length (x:xs))
+		\end{verbatim}
+	\end{solution}
+	
+	\part Consider Haskell's \texttt{\small Monoid} type class:
+	\begin{verbatim}
+	class Monoid a where 
+	    mempty  :: a
+	    mappend :: a -> a -> a
+	\end{verbatim}
+	Functions form a monoid if their co-domain is also a monoid: 
+	\begin{verbatim}
+	instance Monoid b => Monoid (a -> b) where 
+	   mempty = \x -> mempty 
+	   mappend f g = \x -> mappend (f x) (g x)
+	\end{verbatim}
+	Prove that the monoid laws hold for this instance of the \texttt{\small Monoid} type class.
+	\begin{subparts}
+		\subpart[3] Left identity: $\mathit{mappend}~f~\mathit{mempty} = f$ \droppoints
+		
+		\begin{solution}
+			\emph{Application.}
+			\begin{verbatim}
+			mappend f mempty
+			= \x -> mappend (f x) (mempty x)
+			= \x -> mappend (f x) mempty
+			= \x -> f x
+			f
+			\end{verbatim}
+		\end{solution}
+		
+		\subpart[3] Right identity: $\mathit{mappend}~\mathit{mempty}~f = f$ \droppoints
+		
+		\begin{solution}
+			\emph{Application.}
+			\begin{verbatim}
+			mappend mempty f
+			= \x -> mappend (mempty x) (f x)
+			= \x -> mappend mempty (f x)
+			= \x -> f x
+			f
+			\end{verbatim}
+		\end{solution}
+		
+		\subpart[5] Associativity: $\mathit{mappend}~f~(\mathit{mappend}~g~h) = \mathit{mappend}~(\mathit{mappend}~f~g)~h$ \droppoints
+		
+		\begin{solution}
+			\emph{Application.}
+			\begin{verbatim}
+			mappend f (mappend g h)
+			= \x -> mappend (f x) ((mappend g h) x)
+			= \x -> mappend (f x) ((\y -> mappend (g y) (h y)) x)
+			= \x -> mappend (f x) (mappend (g x) (h x))
+			= \x -> mappend (mappend (f x) (g x)) (h x)
+			= \x -> mappend ((\y -> mappend (f y) (g y)) x) (h x)
+			= \x -> mappend ((mappend f g) x) (h x)
+			= mappend (mappend f g) h
+			\end{verbatim}
+		\end{solution}
+	\end{subparts}
+\end{parts}

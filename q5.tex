@@ -1,0 +1,88 @@
+
+%%% Question 5 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+\question This question is about functors, applicative functors, and monads. Consider the following type: % or maybe pairs?
+\begin{verbatim}
+data Pair a b = MkP a b
+\end{verbatim}
+\begin{parts} 
+	\part[5] Define a suitable instance of the \haskellIn{Functor} type class for the \haskellIn{Pair} type and prove that your instance obeys the functor laws. \droppoints 
+	
+	\begin{solution}
+	Instance (2 marks):
+	\begin{verbatim}
+	instance Functor (Pair a) where 
+	  fmap f (MkP a b) = MkP a (f b)
+	\end{verbatim}
+	Proofs (1 mark for identity, 2 marks for fusion):
+	\begin{verbatim}
+	fmap id (MkP a b)
+	= MkP a (id b)
+	= MkP a b
+	= id (MkP a b)
+	
+	fmap (f.g) (MkP a b)
+	= MkP a ((f.g) b)
+	= MkP a (f (g b))
+	= fmap f (MkP a (g b))
+	= fmap f (fmap g (MkP a b))
+	= (fmap f . fmap g) (MkP a b)
+	\end{verbatim}
+	\end{solution}
+	
+	\part[15] Define a suitable instance of the \haskellIn{Applicative} type class for the \haskellIn{Pair} type, adding suitable type class constraints if necessary, and prove that your instance obeys the applicative functor laws. \droppoints
+	\begin{solution}
+	Instance (4 marks):
+	\begin{verbatim}
+	instance Monoid a => Applicative (Pair a) where 
+	  pure x = MkP mempty x 
+	  (MkP a f) <*> (MkP a' x) = MkP (mappend a a') (f x)
+	\end{verbatim}
+	Proofs (2 marks for Identity, 2 marks for Homomorphism, 3 for Interchange, 4 for Composition):
+	\begin{verbatim}
+	Identity: pure id <*> v = v 
+	pure id <*> (MkP a b) 
+	= MkP mempty id <*> (MkP a b) 
+	= MkP (mappend mempty a) (id b)
+	= MkP a b 
+	
+	Homomorphism: pure f <*> pure x = pure (f x)
+	pure f <*> pure x 
+	= MkP mempty f <*> MkP mempty x 
+	= MkP (mappend mempty mempty) (f x)
+	= MkP mempty (f x)
+	
+	Interchange: u <*> pure y = pure ($ y) <*> u 
+	(MkP a f) <*> pure y 
+	= (MkP a f) <*> (MkP mempty y)
+	= MkP (mappend a mempty) (f y)
+	= MkP mempty (f y)
+	= MkP (mappend mempty a) (f $ y)
+	= MkP (mappend mempty a) (($ y) f)
+	= (MkP mempty ($ y)) <*> (MkP a f)
+	= pure ($ y) <*> (MkP a f)
+	
+	Composition: pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+	pure (.) <*> (MkP a x) <*> (MkP b y) <*> (MkP c z)
+	= MkP mempty (.) <*> (MkP a x) <*> (MkP b y) <*> (MkP c z)
+	= MkP (mappend mempty a) ((.) x) <*> (MkP b y) <*> (MkP c z)
+	= MkP a ((.) x) <*> (MkP b y) <*> (MkP c z)
+	= MkP (mappend a b) ((.) x y) <*> (MkP c z)
+	= MkP (mappend (mappend a b) c) ((.) x y) z)
+	= MkP (mappend (mappend a b) c) (x (y z))
+	= MkP (mappend a (mappend b c)) (x (y z))
+	= (MkP a x) <*> (MkP (mappend b c) (y z))
+	= (MkP a x) <*> ((MkP b y) <*> (MkP c z))
+	\end{verbatim}
+	\end{solution}
+	
+	\part[5] Define a suitable instance of the \haskellIn{Monad} type class for the \haskellIn{Pair} type, adding suitable type class constraints if necessary. Although your instance of the \haskellIn{Monad} type class should obey the monad laws, you \emph{do not} need to prove this explicitly. \droppoints
+	
+	\begin{solution}
+		\emph{Application.}
+		\begin{verbatim}
+		instance Monoid a => Monad (Pair a) where 
+		  (MkP a x) >>= f = let (MkP b y) = f x 
+		                    in MkP (mappend a b) y
+		\end{verbatim}
+	\end{solution}
+\end{parts}
